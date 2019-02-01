@@ -1,4 +1,4 @@
-const createDOMFormString = (domString) => {
+const createDOMFromString = (domString) => {
   const div = document.createElement('div')
   div.innerHTML = domString
   return div
@@ -10,12 +10,14 @@ class LikeButton {
   }
 
   setState(state) {
+    const oldEl = this.el
     this.state = state
-    this.render() 
+    this.render()
+    if (this.onStateChange) this.onStateChange(this.el, oldEl)
   }
 
   render() {
-    this.el = createDOMFormString(`
+    this.el = createDOMFromString(`
       <button class="like-btn">
         <span class="like-text">${ this.state.isLiked ? "取消" : "点赞" }</span>
         <span>👍</span>
@@ -33,8 +35,9 @@ class LikeButton {
 }
 
 let wrapper = document.querySelector('.wrapper')
-const likeButton1 = new LikeButton()
-wrapper.appendChild(likeButton1.render())
-
-const likeButton2 = new LikeButton();
-wrapper.appendChild(likeButton2.render());
+const likeButton = new LikeButton()
+wrapper.appendChild(likeButton.render())
+likeButton.onStateChange = (newEl, oldEl) => {
+  wrapper.insertBefore(newEl, oldEl)
+  wrapper.removeChild(oldEl)
+}
