@@ -1,43 +1,61 @@
 const createDOMFromString = (domString) => {
   const div = document.createElement('div')
   div.innerHTML = domString
-  return div
+  return div.firstElementChild || null
 }
 
-class LikeButton {
-  constructor() {
-    this.state = { isLiked: true }
+const mount = (component, wrapper) => {
+  wrapper.appendChild(component._renderDOM())
+  component.onStateChange = (newEl, oldEl) => {
+    wrapper.insertBefore(newEl, oldEl)
+    wrapper.removeChild(oldEl)
+  }
+}
+
+class Component {
+  constructor(props) {
+    this.props = props
   }
 
   setState(state) {
     const oldEl = this.el
     this.state = state
-    this.render()
+    this._renderDOM()
     if (this.onStateChange) this.onStateChange(this.el, oldEl)
   }
 
-  render() {
-    this.el = createDOMFromString(`
-      <button class="like-btn">
-        <span class="like-text">${ this.state.isLiked ? "取消" : "点赞" }</span>
-        <span>👍</span>
-      </button>
-    `)
-    this.el.addEventListener('click', this.changeLikeText.bind(this), false)
+  _renderDOM() {
+    this.el = createDOMFromString(this.render())
+    if(this.onClick) {
+      this.el.addEventListener('click', this.onClick.bind(this), false)
+    }
     return this.el
   }
 
-  changeLikeText() {
+}
+
+class LikeButton extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { isLiked: true, likeNum: 0 }
+  }
+
+  render() {
+    return `
+      <button class="like-btn">
+        <span class="like-text">${ this.state.isLiked ? "取消" : "点赞" }</span>
+        <span>${this.state.likeNum}👍</span>
+      </button>
+    `
+  }
+
+  onClick() {
     this.setState({
-      isLiked: !this.state.isLiked
+      isLiked: !this.state.isLiked,
+      likeNum: this.state.likeNum + 1
     })
   }
 }
 
 let wrapper = document.querySelector('.wrapper')
-const likeButton = new LikeButton()
-wrapper.appendChild(likeButton.render())
-likeButton.onStateChange = (newEl, oldEl) => {
-  wrapper.insertBefore(newEl, oldEl)
-  wrapper.removeChild(oldEl)
-}
+mount(new LikeButton(), wrapper)
