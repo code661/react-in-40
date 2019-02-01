@@ -6,12 +6,18 @@ const createDOMFormString = (domString) => {
 
 class LikeButton {
   constructor() {
-    this.state = { isLiked: false }
+    this.state = { isLiked: true }
   }
+
+  setState(state) {
+    this.state = state
+    this.render() 
+  }
+
   render() {
     this.el = createDOMFormString(`
       <button class="like-btn">
-        <span class="like-text">点赞</span>
+        <span class="like-text">${ this.state.isLiked ? "取消" : "点赞" }</span>
         <span>👍</span>
       </button>
     `)
@@ -20,9 +26,9 @@ class LikeButton {
   }
 
   changeLikeText() {
-    const likeText = this.el.querySelector('.like-text')
-    this.state.isLiked = !this.state.isLiked
-    likeText.innerHTML = this.state.isLiked ? '取消' : '点赞'
+    this.setState({
+      isLiked: !this.state.isLiked
+    })
   }
 }
 
