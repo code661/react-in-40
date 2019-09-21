@@ -14,7 +14,11 @@ const mount = (component, wrapper) => {
 
 class Component {
   constructor(props) {
+    // super()
     this.props = props
+    console.log('Super Class this:',this);
+    console.log('父组件的构造函数调用');
+
   }
 
   setState(state) {
@@ -37,6 +41,9 @@ class Component {
 class LikeButton extends Component {
   constructor(props) {
     super(props)
+    console.log('子组件的构造函数调用');
+    console.log(props);
+    console.log(this);    
     this.state = { isLiked: true, likeNum: 0 }
   }
 
@@ -58,4 +65,4 @@ class LikeButton extends Component {
 }
 
 let wrapper = document.querySelector('.wrapper')
-mount(new LikeButton(), wrapper)
+mount(new LikeButton({hello: 'foo'}), wrapper)
